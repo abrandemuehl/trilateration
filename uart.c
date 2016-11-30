@@ -20,7 +20,6 @@
 extern UartDevice UartDev;
 
 LOCAL void uart0_rx_intr_handler(void *para);
-void uart_tx_one_char(char);
 
 /******************************************************************************
  * FunctionName : uart_config
@@ -105,25 +104,6 @@ uart1_write_char(char c)
 }
 
 /******************************************************************************
- * FunctionName : uart0_write_char
- * Description  : Internal used function
- *                Do some special deal while tx char is '\r' or '\n'
- * Parameters   : char c - character to tx
- * Returns      : NONE
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-uart0_write_char(char c)
-{
-    if (c == '\n') {
-        uart_tx_one_char('\r');
-        uart_tx_one_char('\n');
-    } else if (c == '\r') {
-    } else {
-        uart_tx_one_char(c);
-    }
-}
-
-/******************************************************************************
  * FunctionName : uart0_rx_intr_handler
  * Description  : Internal used function
  *                UART0 interrupt handler, add self handle code inside
@@ -150,7 +130,6 @@ uart0_rx_intr_handler(void *para)
 
         /* you can add your handle code below.*/
 
-        system_os_post(uart_procTaskPrio, 0, RcvChar);
         *(pRxBuff->pWritePos) = RcvChar;
 
         // insert here for get one command line from uart
@@ -214,7 +193,7 @@ uart_init(UartBautRate uart0_br, UartBautRate uart1_br)
     ETS_UART_INTR_ENABLE();
 
     // install uart1 putc callback
-    os_install_putc1((void *)uart_tx_one_char);
+    os_install_putc1((void *)uart1_write_char);
 //    UartDev.rcv_buff.pWritePos = UartDev.rcv_buff.pRcvMsgBuff;
 //    UartDev.rcv_buff.pReadPos  = UartDev.rcv_buff.pRcvMsgBuff;
 }

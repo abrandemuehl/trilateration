@@ -21,6 +21,6 @@ typedef struct {
 } message;
 
 
-void message_create(message *msg, uint32_t id, uint8_t *mac, uint8_t rssi);
+void message_create(message *msg, uint32_t id, uint8_t *mac, uint8_t rssi, float x, float y);
 
 #endif // MESSAGES_H

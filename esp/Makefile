@@ -20,9 +20,8 @@ flash: $(BINDIR)/app.bin
 	# SDK 2.0.0
 	# esptool.py write_flash 0 $(BINDIR)/app-0x00000.bin 0x10000 $(BINDIR)/app-0x10000.bin
 
-test: test.c trilateration.o
-
-trilateration/trilateration.o: trilateration/trilateration.c trilateration/trilateration.h
+../common/trilateration_esp.o: ../common/trilateration.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c $^ -o $@ $(LDLIBS)
 
 app: app.o uart.o ../common/messages.o ringbuffer.o
 
@@ -40,7 +39,7 @@ $(BINDIR)/speed_test.bin: speed_test
 flash_speed_test: $(BINDIR)/speed_test.bin
 	esptool.py write_flash 0 $(BINDIR)/speed_test-0x00000.bin 0x40000 $(BINDIR)/speed_test-0x40000.bin
 
-speed_test: speed_test.o trilateration/trilateration.o
+speed_test: speed_test.o ../common/trilateration_esp.o
 
 speed_test.o: speed_test.c
 

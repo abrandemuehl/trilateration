@@ -1,14 +1,18 @@
 #include "trilateration.h"
 #include <math.h>
+#ifdef __xtensa__
 #include "user_interface.h"
-#ifndef __xtensa__
+#else
 #include "string.h"
 #include <stdio.h>
 #endif
 
 
 
-float ICACHE_FLASH_ATTR
+float
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 vec_magnitude(Vector v, plane_t plane)
 {
   float out = 0.0;
@@ -42,7 +46,10 @@ vec_magnitude(Vector v, plane_t plane)
 // m = 3
 // n = 2
 // output is mx1
-void ICACHE_FLASH_ATTR
+void
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 mat_vec_multiply(float *vec, float *mat, float *output, int m, int n)
 {
   float dot;
@@ -70,7 +77,10 @@ mat_vec_multiply(float *vec, float *mat, float *output, int m, int n)
 // n = 2
 // k = 2
 // output is mxk
-void ICACHE_FLASH_ATTR
+void
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 mat_mat_multiply(float *mat1, float *mat2, float *output, int m, int n, int k)
 {
   float dot;
@@ -87,7 +97,10 @@ mat_mat_multiply(float *mat1, float *mat2, float *output, int m, int n, int k)
 }
 
 // Vector addition
-Vector ICACHE_FLASH_ATTR
+Vector
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 vec_add(Vector v1, Vector v2)
 {
   Vector vout;
@@ -99,12 +112,18 @@ vec_add(Vector v1, Vector v2)
 }
 
 // Apply a rotation to a vector based on a theta
-Vector ICACHE_FLASH_ATTR
+Vector
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 rotate2D(float theta, Vector v) {
   return vec_rotate(theta, v, Z);
 }
 
-Vector ICACHE_FLASH_ATTR
+Vector
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 vec_rotate(float theta, Vector v, axis_t axis) {
   if(theta == 0.0 || theta == -0.0) {
     return v;
@@ -143,7 +162,10 @@ vec_rotate(float theta, Vector v, axis_t axis) {
 }
 
 
-Vector ICACHE_FLASH_ATTR
+Vector
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 trilaterate2D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
   Vector output;
   Vector v2_prime, v3_prime;
@@ -191,7 +213,10 @@ trilaterate2D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
   return output;
 }
 
-Vector ICACHE_FLASH_ATTR
+Vector
+#ifdef __xtensa__
+  ICACHE_FLASH_ATTR
+#endif
 trilaterate3D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
   Vector output;
   Vector v2_prime, v3_prime;

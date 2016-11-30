@@ -1,6 +1,7 @@
-#include "trilateration/trilateration.h"
+#include "../common/trilateration.h"
 #include "user_interface.h"
 #include "osapi.h"
+#include "math.h"
 
 
 
