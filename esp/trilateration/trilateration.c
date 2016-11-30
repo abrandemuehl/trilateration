@@ -1,11 +1,16 @@
 #include "trilateration.h"
-#include "math.h"
+#include <math.h>
+#include "user_interface.h"
+#ifndef __xtensa__
 #include "string.h"
 #include <stdio.h>
+#endif
 
 
 
-float vec_magnitude(Vector v, plane_t plane) {
+float ICACHE_FLASH_ATTR
+vec_magnitude(Vector v, plane_t plane)
+{
   float out = 0.0;
 
   switch (plane) {
@@ -37,11 +42,14 @@ float vec_magnitude(Vector v, plane_t plane) {
 // m = 3
 // n = 2
 // output is mx1
-void mat_vec_multiply(float *vec, float *mat, float *output, int m, int n) {
+void ICACHE_FLASH_ATTR
+mat_vec_multiply(float *vec, float *mat, float *output, int m, int n)
+{
   float dot;
-  for(int row=0; row<m; row++) {
+  int row, col;
+  for(row=0; row<m; row++) {
     dot = 0.0;
-    for(int col=0; col < n; col++) {
+    for(col=0; col < n; col++) {
       dot += vec[col] * mat[row*n + col];
     }
     output[row] = dot;
@@ -62,12 +70,15 @@ void mat_vec_multiply(float *vec, float *mat, float *output, int m, int n) {
 // n = 2
 // k = 2
 // output is mxk
-void mat_mat_multiply(float *mat1, float *mat2, float *output, int m, int n, int k) {
+void ICACHE_FLASH_ATTR
+mat_mat_multiply(float *mat1, float *mat2, float *output, int m, int n, int k)
+{
   float dot;
-  for(int y=0; y < k; y++) {
-    for(int x=0; x < m; x++) {
+  int y, x, i;
+  for(y=0; y < k; y++) {
+    for(x=0; x < m; x++) {
       dot = 0.0;
-      for(int i=0; i < n; i++) {
+      for(i=0; i < n; i++) {
         dot += mat1[y*n + i] * mat2[i*k + x];
       }
       output[y*k+x] = dot;
@@ -76,26 +87,30 @@ void mat_mat_multiply(float *mat1, float *mat2, float *output, int m, int n, int
 }
 
 // Vector addition
-Vector vec_add(Vector v1, Vector v2) {
+Vector ICACHE_FLASH_ATTR
+vec_add(Vector v1, Vector v2)
+{
   Vector vout;
-  for(int i=0; i < 3; i++) {
+  int i;
+  for(i=0; i < 3; i++) {
     vout.xyz[i] = v1.xyz[i] + v2.xyz[i];
   }
   return vout;
 }
 
 // Apply a rotation to a vector based on a theta
-Vector rotate2D(float theta, Vector v) {
+Vector ICACHE_FLASH_ATTR
+rotate2D(float theta, Vector v) {
   return vec_rotate(theta, v, Z);
 }
 
-Vector vec_rotate(float theta, Vector v, axis_t axis) {
+Vector ICACHE_FLASH_ATTR
+vec_rotate(float theta, Vector v, axis_t axis) {
   if(theta == 0.0 || theta == -0.0) {
     return v;
   }
-  float R[3][3];
+  float R[3][3] = {{0}, {0}, {0}};
   Vector vout;
-  memset(R, 0, sizeof(R));
 
   float cos_theta = cos(theta);
   float sin_theta = sin(theta);
@@ -128,12 +143,10 @@ Vector vec_rotate(float theta, Vector v, axis_t axis) {
 }
 
 
-Vector trilaterate2D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
+Vector ICACHE_FLASH_ATTR
+trilaterate2D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
   Vector output;
-  memset(&output, 0, sizeof(output));
   Vector v2_prime, v3_prime;
-  memset(&v2_prime, 0, sizeof(v2_prime));
-  memset(&v3_prime, 0, sizeof(v3_prime));
 
   // Step 1: Bring v1 to the origin
   Vector translation;
@@ -145,8 +158,6 @@ Vector trilaterate2D(Vector v1, float r1, Vector v2, float r2, Vector v3, float 
 
   // Step 2: Rotate v2 to the axis
   Vector v2_final, v3_final;
-  memset(&v2_final, 0, sizeof(v2_final));
-  memset(&v3_final, 0, sizeof(v3_final));
 
   float v2_mag = vec_magnitude(v2_prime, XY);
   float theta = acos(v2_prime.x/v2_mag);
@@ -166,9 +177,9 @@ Vector trilaterate2D(Vector v1, float r1, Vector v2, float r2, Vector v3, float 
   float y = (pow(r1, 2) - pow(r3, 2) + pow(i, 2) + pow(j, 2))/(2*j) - (i/j) * x;
 
   Vector tmp;
-  memset(&tmp, 0, sizeof(tmp));
   tmp.x = x;
   tmp.y = y;
+  tmp.z = 0;
 
   // Step 4: Undo rotation
   output = rotate2D(-theta, tmp);
@@ -180,7 +191,8 @@ Vector trilaterate2D(Vector v1, float r1, Vector v2, float r2, Vector v3, float 
   return output;
 }
 
-Vector trilaterate3D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
+Vector ICACHE_FLASH_ATTR
+trilaterate3D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
   Vector output;
   Vector v2_prime, v3_prime;
 

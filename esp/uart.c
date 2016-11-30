@@ -215,7 +215,7 @@ uart0_rx_intr_handler(void *para)
 //    os_printf("fifo full\r\n");
     ETS_UART_INTR_DISABLE();/////////
 
-    // system_os_post(recvTaskPrio, 0, 0);
+    system_os_post(recvTaskPrio, 0, 0);
 
 //    WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_RXFIFO_FULL_INT_CLR);
 //    while (READ_PERI_REG(UART_STATUS(uart_no)) & (UART_RXFIFO_CNT << UART_RXFIFO_CNT_S))
@@ -230,7 +230,7 @@ uart0_rx_intr_handler(void *para)
     ETS_UART_INTR_DISABLE();/////////
 
 //    os_printf("stat:%02X",*(uint8 *)UART_INT_ENA(uart_no));
-    // system_os_post(recvTaskPrio, 0, 0);
+    system_os_post(recvTaskPrio, 0, 0);
 
 //    WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_RXFIFO_TOUT_INT_CLR);
 ////    os_printf("rx time over\r\n");
