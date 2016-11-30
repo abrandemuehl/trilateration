@@ -11,12 +11,14 @@ test: LDFLAGS = -lm
 EXES = app test
 BINDIR = bin
 
+PORT ?= /dev/ttyUSB0
+
 $(BINDIR)/app.bin: app
 	esptool.py elf2image --output $(BINDIR)/$^- $^
 
 flash: $(BINDIR)/app.bin
 	# SDK 0.9.4
-	esptool.py write_flash 0 $(BINDIR)/app-0x00000.bin 0x40000 $(BINDIR)/app-0x40000.bin
+	esptool.py --port $(PORT) write_flash 0 $(BINDIR)/app-0x00000.bin 0x40000 $(BINDIR)/app-0x40000.bin
 	# SDK 2.0.0
 	# esptool.py write_flash 0 $(BINDIR)/app-0x00000.bin 0x10000 $(BINDIR)/app-0x10000.bin
 
@@ -37,12 +39,22 @@ $(BINDIR)/speed_test.bin: speed_test
 	esptool.py elf2image --output $(BINDIR)/$^- $^
 
 flash_speed_test: $(BINDIR)/speed_test.bin
-	esptool.py write_flash 0 $(BINDIR)/speed_test-0x00000.bin 0x40000 $(BINDIR)/speed_test-0x40000.bin
+	esptool.py --port $(PORT) write_flash 0 $(BINDIR)/speed_test-0x00000.bin 0x40000 $(BINDIR)/speed_test-0x40000.bin
 
 speed_test: speed_test.o ../common/trilateration_esp.o
 
 speed_test.o: speed_test.c
 
+
+flash_ap_test: $(BINDIR)/ap_test.bin
+	esptool.py --port $(PORT) write_flash 0 $(BINDIR)/ap_test-0x00000.bin 0x40000 $(BINDIR)/ap_test-0x40000.bin
+
+$(BINDIR)/ap_test.bin: ap_test
+	esptool.py elf2image --output $(BINDIR)/$^- $^
+
+ap_test: ap_test.o
+
+ap_test.o: ap_test.c
 
 clean:
 	rm -f $(EXES) *.o $(BINDIR)/*

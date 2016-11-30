@@ -11,6 +11,9 @@
 #include <netinet/ip.h>
 #include <pthread.h>
 #include <string>
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 
 
 extern "C" {
@@ -19,6 +22,8 @@ extern "C" {
 #include "error.h"
 }
 #include "serial.h"
+#include "types.h"
+#include "message_handler.h"
 
 
 #define DEFAULT_PORT "/dev/ttyUSB0"
@@ -69,9 +74,10 @@ void *readSerialThread(void *arg) {
 
     // Message header received
     read(fd, &buf[3], sizeof(message) - sizeof(header));
-    printf("%d %02x:%02x:%02x:%02x:%02x:%02x\n", msg.m.rssi,
+    my_chipid = msg.m.src_id;
+    printf("Serial: %02x:%02x:%02x:%02x:%02x:%02x %d\n",
         msg.m.mac[0], msg.m.mac[1], msg.m.mac[2],
-        msg.m.mac[3], msg.m.mac[4], msg.m.mac[5]);
+        msg.m.mac[3], msg.m.mac[4], msg.m.mac[5], msg.m.rssi);
 
     if(sendto(sock, (uint8_t *)&msg, sizeof(msg), 0, (struct sockaddr *)&s, sizeof(s)) < 0) {
       fprintf(stderr, "Failed to broadcast message\n");
@@ -98,6 +104,9 @@ void *readNetThread(void *arg) {
   }
 
   bcast_message m;
+  m.x = myx;
+  m.y = myy;
+  m.z = myz;
   while(1) {
     int len = recv(sock, (uint8_t *)&m, sizeof(m), 0);
     if(len != sizeof(m)) {
@@ -109,6 +118,7 @@ void *readNetThread(void *arg) {
       continue;
     }
     write(fd, &m, sizeof(m));
+    printf("WIFI:   %02x:%02x:%02x:%02x:%02x:%02x %d\n", m.m.mac[0], m.m.mac[1], m.m.mac[2], m.m.mac[3], m.m.mac[4], m.m.mac[5], m.m.rssi);
   }
   return NULL;
 }
@@ -118,17 +128,16 @@ void *readNetThread(void *arg) {
 int main(int argc, char **argv) {
   // Check if a serial port is specified
 
-  std::string port_name = NULL;
+  std::string port_name;
   switch(argc) {
-    case 1:
-      // No serial port specified
-      port_name = DEFAULT_PORT;
-      break;
-    case 2:
+    case 5:
       port_name = argv[1];
+      sscanf(argv[2], "%f", &myx);
+      sscanf(argv[3], "%f", &myy);
+      sscanf(argv[4], "%f", &myz);
       break;
-    case 3:
-      ERROR("Invalid arguments\n%s <port>", argv[0]);
+    default:
+      ERROR("Invalid arguments\n%s <port> <x> <y> <z>", argv[0]);
       break;
   }
 
@@ -139,7 +148,6 @@ int main(int argc, char **argv) {
   }
   set_interface_attribs(fd, B115200, 0);
   set_blocking (fd, 1);
-
 
   pthread_t serial_tid, net_tid;
   pthread_create(&serial_tid, NULL, readSerialThread, (void *)&fd);

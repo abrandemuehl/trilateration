@@ -19,5 +19,4 @@ void message_create(message *msg, uint32_t id, uint8_t *mac, uint8_t rssi) {
   memcpy(msg->mac, mac, sizeof(msg->mac));
 #endif
   msg->rssi = rssi;
-
 }
