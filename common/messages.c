@@ -8,7 +8,7 @@
 
 
 
-void message_create(message *msg, uint32_t id, uint8_t *mac, uint8_t rssi) {
+void ICACHE_FLASH_ATTR message_create(message *msg, uint32_t id, uint8_t *mac, uint8_t rssi) {
   msg->head.PREFIX0 = 'f';
   msg->head.PREFIX1 = 'd';
   msg->head.PREFIX2 = 'a';

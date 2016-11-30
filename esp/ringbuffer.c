@@ -1,15 +1,16 @@
 #include "ringbuffer.h"
+#include "user_interface.h"
 
 
 
 
-void rb_init(RingBuffer *rb) {
+void ICACHE_FLASH_ATTR rb_init(RingBuffer *rb) {
   rb->start = &rb->data[0];
   rb->end = &rb->data[0];
 }
 
 
-int rb_get(RingBuffer *rb) {
+int ICACHE_FLASH_ATTR rb_get(RingBuffer *rb) {
   int val;
   if(rb->start == rb->end) {
     return -1;
@@ -22,7 +23,7 @@ int rb_get(RingBuffer *rb) {
   return val;
 }
 
-void rb_push(RingBuffer *rb, int val) {
+void ICACHE_FLASH_ATTR rb_push(RingBuffer *rb, int val) {
   int *next = rb->end + 1;
   if(next > &rb->data[RB_SIZE-1]) {
     next = &rb->data[0];

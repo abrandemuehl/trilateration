@@ -20,7 +20,7 @@ flash: $(BINDIR)/app.bin
 	# SDK 2.0.0
 	# esptool.py write_flash 0 $(BINDIR)/app-0x00000.bin 0x10000 $(BINDIR)/app-0x10000.bin
 
-test: test.c trilateration.o
+test: ../pc/test.c trilateration.o
 
 trilateration/trilateration.o: trilateration/trilateration.c trilateration/trilateration.h
 

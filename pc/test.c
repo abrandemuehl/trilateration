@@ -1,4 +1,4 @@
-#include "trilateration.h"
+#include "trilateration/trilateration.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -92,15 +92,47 @@ void testTrilateration3D() {
     .z = 1
   };
   float r3 = 1;
+  Vector expected = {.x=0, .y=0, .z=0, .err=0};
+  Vector output = trilaterate3D(v1, r1, v2, r2, v3, r3);
+
+  if((roundf(output.x) == expected.x) && (roundf(output.y) == expected.y) &&
+      (roundf(output.y) == expected.z) && roundf(output.err) == expected.err) {
+    printf("trilaterate3D Passed\n");
+  } else {
+    printf("trilaterate3D Failed\n");
+    printf("Output was: {%f, %f, %f} with error: %f\n", output.x, output.y, output.z, output.err);
+  }
+}
+
+void testTrilateration3D_err() {
+  // Make sure an example works
+  Vector v1 = {
+    .x = 1,
+    .y = 0,
+    .z = 0
+  };
+  float r1 = 1;
+  Vector v2 = {
+    .x = 0,
+    .y = 1,
+    .z = 0
+  };
+  float r2 = 1;
+  Vector v3 = {
+    .x = 0,
+    .y = 0,
+    .z = 1
+  };
+  float r3 = .1;
   Vector expected = {.x=0, .y=0, .z=0};
   Vector output = trilaterate3D(v1, r1, v2, r2, v3, r3);
 
   if((roundf(output.x) == expected.x) && (roundf(output.y) == expected.y) &&
-      (roundf(output.y) == expected.z)) {
-    printf("trilaterate2D Passed\n");
+      (roundf(output.y) == expected.z) && roundf(output.err) == expected.err) {
+    printf("trilaterate3D_err Passed\n");
   } else {
-    printf("trilaterate2D Failed\n");
-    printf("Output was: {%f, %f, %f}\n", output.x, output.y, output.z);
+    printf("trilaterate3D_err Failed\n");
+    printf("Output was: {%f, %f, %f} with error: %f\n", output.x, output.y, output.z, output.err);
   }
 }
 
@@ -164,6 +196,7 @@ int main() {
   testRotate2D();
   testTrilateration2D();
   testTrilateration3D();
+  testTrilateration3D_err();
   test_mat_mat_multiply();
   test_mat_vec_multiply();
   return 0;

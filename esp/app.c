@@ -15,6 +15,8 @@
   (a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && \
    a[3] == b[3] && a[4] == b[4] && a[5] == b[5])
 
+char martin[6] = {0x80,0xE6,0x5f,0x1F,0xBB,0x02};
+
 
 
 
@@ -59,7 +61,7 @@ promisc_cb(uint8_t *buf, uint16_t len)
     // Search for the mac entry
     int ptr;
     for(ptr = 0; ptr < end; ptr++) {
-      if(MAC_CMP(entries[ptr].mac, data_frame->sa)) {
+      if(MAC_CMP(martin, data_frame->sa)) {
         // Found. Update value
         entries[ptr].time = time;
         if(entries[ptr].rssi != rssi) {
@@ -94,6 +96,9 @@ message_procTask(os_event_t *event) {
     uart0_tx_buffer((uint8_t *)&m, sizeof(m));
 
     idx = rb_get(&updates);
+
+    //os_printf("%d\n", entries[idx].rssi);
+    //uart0_tx_buffer((uint8_t *)&m, sizeof(m));
   }
   os_delay_us(1000);
   system_os_post(message_procTaskPrio, 0, 0);

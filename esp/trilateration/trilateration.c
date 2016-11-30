@@ -235,18 +235,37 @@ trilaterate3D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
   // Let P1 = (0, 0, 0), P2 = (d, 0, 0), P3 = (i, j, 0)
   // x = (r1^2-r2^2+d^2)/(2d)
   // y = (r1^2-r3^2-x^2+(x-i)^2+j^2)/(2j)
-  // z = plus_minus sqrt(x^2+y^2-r1^2)
+  // z = plus_minus sqrt(x^2+y^2-r1^2)j5
 
   float d = v2_prime.x;
   float i = v3_prime.x;
   float j = v3_prime.y;
 
-  output.x = (pow(r1,2) - pow(r2,2) + pow(d, 2)) / (2*d);
-  output.y = (pow(r1,2) - pow(r3,2) - pow(output.x, 2) + pow(output.x-i, 2) + pow(j,2))/(2*j);
-  output.z = sqrt(pow(output.x,2) + pow(output.y,2) - pow(r1, 2));
-  if(isnan(output.z)) {
-    // Doesn't necessarily output a correct Z
+  float dist1_3 = sqrt(pow(i,2) + pow(j,2));
+  float dist2_3 = sqrt(pow((d-i),2) + pow(j,2));
+  float dist1_0 = sqrt(pow(i,2) + pow(d/2,2));
+  float dist2_0 = sqrt(pow((d-i),2) + pow(d/2,2));
+  float dist3_0 = j/2;
+
+printf("YOYOYO: %f %f %f \n",dist1_0-r1,dist2_0-r2,dist3_0-r3);
+printf("%f %f %f \n",d,i,j);
+printf("%d %d %d \n", r1<(d-r2),r1<j-r3,r2<j-r3);
+
+  if(r1<(d-r2)||r1<dist1_3-r3||r2<dist2_3-r3){
+    output.x = d/2;
+    output.y = j/2;
     output.z = 0.0;
+
+    output.err = fminf(fminf(dist1_0-r1,dist2_0-r2),dist3_0-r3);
+  }else{
+    output.x = (pow(r1,2) - pow(r2,2) + pow(d, 2)) / (2*d);
+    output.y = (pow(r1,2) - pow(r3,2) - pow(output.x, 2) + pow(output.x-i, 2) + pow(j,2))/(2*j);
+    output.z = sqrt(pow(output.x,2) + pow(output.y,2) - pow(r1, 2));
+    if(isnan(output.z)) {
+      // Doesn't necessarily output a correct Z
+      output.z = 0.0;
+    }
+    output.err = 0.0;
   }
   // Step 4: Undo rotation
   output = vec_rotate(-theta_z, output, Z);

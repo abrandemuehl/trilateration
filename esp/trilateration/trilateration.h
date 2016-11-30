@@ -6,6 +6,7 @@ typedef union {
     float x;
     float y;
     float z;
+    float err;
   };
   float xyz[3];
 } Vector;
