@@ -15,7 +15,7 @@
   (a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && \
    a[3] == b[3] && a[4] == b[4] && a[5] == b[5])
 
-char martin[6] = {0x80,0xE6,0x5f,0x1F,0xBB,0x02};
+char martin[6] = {0x40, 0x78, 0x6a, 0x6d, 0x12, 0x4d};
 
 
 
@@ -53,33 +53,16 @@ promisc_cb(uint8_t *buf, uint16_t len)
   }
   struct sniffer_buf *sniffer = (struct sniffer_buf*)buf;
   struct framectrl_80211 *fc = (struct framectrl_80211*)sniffer->buf;
+  os_printf("Recv\n");
   if(fc->Type == FRAME_TYPE_DATA) {
     struct data_frame_80211 *data_frame = (struct data_frame_80211*)sniffer->buf;
 
     int8_t rssi = sniffer->rx_ctrl.rssi;
     uint32_t time = system_get_time();
-    // Search for the mac entry
-    int ptr;
-    for(ptr = 0; ptr < end; ptr++) {
-      if(MAC_CMP(martin, data_frame->sa)) {
-        // Found. Update value
-        entries[ptr].time = time;
-        if(entries[ptr].rssi != rssi) {
-          entries[ptr].rssi = rssi;
-        }
-        break;
-      }
+    if(MAC_CMP(martin, data_frame->sa)) {
+      // Found. Update value
+      os_printf("%d\n", rssi);
     }
-    if(ptr == end) {
-      // Insert a new entry
-      os_memcpy(entries[ptr].mac, data_frame->sa, sizeof(entries[ptr].mac));
-      entries[ptr].rssi = rssi;
-      entries[ptr].time = time;
-      end++;
-    }
-
-    // Put the new position into the ringbuffer as been updated
-    rb_push(&updates, ptr);
   }
 }
 
@@ -92,12 +75,12 @@ message_procTask(os_event_t *event) {
 
   int idx = rb_get(&updates);
   while(idx != -1) {
-    message_create(&m, system_get_chip_id(), entries[idx].mac, entries[idx].rssi);
-    uart0_tx_buffer((uint8_t *)&m, sizeof(m));
+    /* message_create(&m, system_get_chip_id(), entries[idx].mac, entries[idx].rssi); */
+    /* uart0_tx_buffer((uint8_t *)&m, sizeof(m)); */
 
     idx = rb_get(&updates);
 
-    //os_printf("%d\n", entries[idx].rssi);
+    os_printf("%d\n", entries[idx].rssi);
     //uart0_tx_buffer((uint8_t *)&m, sizeof(m));
   }
   os_delay_us(1000);
@@ -137,10 +120,7 @@ user_init()
 
   // rb_init(&messages);
 
-  uint8_t comm_start[100] = {0xFF};
-  comm_start[99] = 0;
-
-  system_os_task(message_procTask, message_procTaskPrio, message_procTaskQueue, message_procTaskQueueLen);
-  system_os_post(message_procTaskPrio, 0, 0);
-  system_os_task(uart_procTask, uart_procTaskPrio, uart_procTaskQueue, uart_procTaskQueueLen);
+  /* system_os_task(message_procTask, message_procTaskPrio, message_procTaskQueue, message_procTaskQueueLen); */
+  /* system_os_post(message_procTaskPrio, 0, 0); */
+  /* system_os_task(uart_procTask, uart_procTaskPrio, uart_procTaskQueue, uart_procTaskQueueLen); */
 }
