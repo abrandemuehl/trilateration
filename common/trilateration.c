@@ -232,7 +232,7 @@ trilaterate3D(Vector v1, float r1, Vector v2, float r2, Vector v3, float r3) {
   v2_prime = vec_add(v2, translation);
   v3_prime = vec_add(v3, translation);
 
-  // Step 2: Rotate v2 about the z and x axis to get a
+  // Step 2: Rotate v2 about the z and y axis to get a
   // About Z axis
   float mag_xy = vec_magnitude(v2_prime, XY);
   float theta_z;
