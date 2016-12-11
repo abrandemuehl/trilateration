@@ -2,7 +2,7 @@ CC = xtensa-lx106-elf-gcc
 CFLAGS = -I. -mlongcalls -nostdlib
 CXX = xtensa-lx106-elf-g++
 CXXFLAGS = $(CFLAGS) -fno-exceptions
-LDLIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -lcirom -lmirom -Wl,--end-group -lgcc
+LDLIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -lcirom -lm -Wl,--end-group -lgcc
 LDFLAGS = -Teagle.app.v6.ld
 
 test: CC = gcc

@@ -1,6 +1,5 @@
-app
 *.bin
-/bin
+bin/
 *.gch
 *.DS_Store
 *.o
